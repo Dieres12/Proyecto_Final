@@ -1,0 +1,231 @@
+// Prisma Schema - Transportes Génesis
+// Defines all database models and relationships
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =====================
+// AUTHENTICATION
+// =====================
+
+enum Role {
+  ADMIN
+  PADRE
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      Role     @default(PADRE)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  parent Parent?
+
+  @@map("users")
+}
+
+// =====================
+// CORE ENTITIES
+// =====================
+
+model Parent {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  firstName String
+  lastName  String
+  phone     String?
+  address   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  students  Student[]
+  payments  Payment[]
+
+  @@map("parents")
+}
+
+model Student {
+  id         String   @id @default(uuid())
+  parentId   String
+  routeId    String?
+  firstName  String
+  lastName   String
+  grade      String
+  section    String?
+  birthDate  DateTime?
+  photoUrl   String?
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  parent     Parent       @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  route      Route?       @relation(fields: [routeId], references: [id])
+  attendances Attendance[]
+
+  @@map("students")
+}
+
+model Driver {
+  id         String   @id @default(uuid())
+  firstName  String
+  lastName   String
+  license    String   @unique
+  phone      String?
+  email      String?
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  buses      Bus[]
+
+  @@map("drivers")
+}
+
+model Bus {
+  id           String   @id @default(uuid())
+  driverId     String?
+  plate        String   @unique
+  model        String?
+  capacity     Int      @default(30)
+  active       Boolean  @default(true)
+  currentLat   Float?
+  currentLng   Float?
+  lastLocation DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  driver       Driver?       @relation(fields: [driverId], references: [id])
+  routes       Route[]
+  gpsLocations GPSLocation[]
+
+  @@map("buses")
+}
+
+model Route {
+  id          String   @id @default(uuid())
+  busId       String?
+  name        String
+  description String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  bus         Bus?      @relation(fields: [busId], references: [id])
+  stops       Stop[]
+  students    Student[]
+
+  @@map("routes")
+}
+
+model Stop {
+  id        String   @id @default(uuid())
+  routeId   String
+  name      String
+  lat       Float
+  lng       Float
+  order     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  route     Route @relation(fields: [routeId], references: [id], onDelete: Cascade)
+
+  @@map("stops")
+}
+
+// =====================
+// PAYMENTS
+// =====================
+
+enum PaymentStatus {
+  PENDIENTE
+  VALIDADO
+  RECHAZADO
+}
+
+model Payment {
+  id          String        @id @default(uuid())
+  parentId    String
+  amount      Float
+  month       Int           // 1-12
+  year        Int
+  status      PaymentStatus @default(PENDIENTE)
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  parent      Parent    @relation(fields: [parentId], references: [id])
+  receipt     Receipt?
+
+  @@map("payments")
+}
+
+model Receipt {
+  id        String   @id @default(uuid())
+  paymentId String   @unique
+  fileUrl   String
+  fileName  String
+  fileType  String
+  createdAt DateTime @default(now())
+
+  // Relations
+  payment   Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@map("receipts")
+}
+
+// =====================
+// ATTENDANCE
+// =====================
+
+model Attendance {
+  id           String   @id @default(uuid())
+  studentId    String
+  date         DateTime
+  confirmed    Boolean  @default(true)
+  lat          Float?
+  lng          Float?
+  observations String?
+  createdAt    DateTime @default(now())
+
+  // Relations
+  student      Student @relation(fields: [studentId], references: [id])
+
+  @@map("attendances")
+}
+
+// =====================
+// GPS TRACKING
+// =====================
+
+model GPSLocation {
+  id        String   @id @default(uuid())
+  busId     String
+  lat       Float
+  lng       Float
+  speed     Float?
+  heading   Float?
+  timestamp DateTime @default(now())
+
+  // Relations
+  bus       Bus @relation(fields: [busId], references: [id])
+
+  @@map("gps_locations")
+}

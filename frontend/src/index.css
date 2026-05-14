@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --sidebar-width: 256px;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    @apply bg-slate-950 text-slate-100 font-sans antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-slate-900;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-600 rounded-full;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-slate-900 border border-slate-800 rounded-xl;
+  }
+  
+  .btn-primary {
+    @apply bg-brand-600 hover:bg-brand-500 text-white font-medium px-4 py-2 rounded-lg 
+           transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed
+           focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 focus:ring-offset-slate-950;
+  }
+
+  .btn-secondary {
+    @apply bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-4 py-2 rounded-lg
+           transition-all duration-150 border border-slate-700
+           focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 focus:ring-offset-slate-950;
+  }
+
+  .btn-danger {
+    @apply bg-red-900/30 hover:bg-red-800/50 text-red-400 font-medium px-4 py-2 rounded-lg
+           transition-all duration-150 border border-red-900/50;
+  }
+
+  .input-field {
+    @apply bg-slate-800 border border-slate-700 text-slate-100 rounded-lg px-3 py-2 w-full
+           focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent
+           placeholder:text-slate-500 transition-all duration-150;
+  }
+
+  .label {
+    @apply text-sm font-medium text-slate-400 mb-1 block;
+  }
+
+  .stat-card {
+    @apply card p-5 flex items-start gap-4;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .table-row {
+    @apply border-b border-slate-800 hover:bg-slate-800/50 transition-colors duration-100;
+  }
+}
+
+/* Leaflet map dark theme */
+.leaflet-container {
+  @apply bg-slate-900 rounded-xl;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.leaflet-popup-content-wrapper {
+  @apply bg-slate-800 text-slate-100 border border-slate-700 rounded-lg shadow-2xl;
+}
+
+.leaflet-popup-tip {
+  @apply bg-slate-800;
+}
+
+/* Animations */
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.7; }
+}
+
+.gps-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Status badges */
+.badge-pendiente { @apply badge bg-amber-900/40 text-amber-400 border border-amber-900/50; }
+.badge-validado { @apply badge bg-emerald-900/40 text-emerald-400 border border-emerald-900/50; }
+.badge-rechazado { @apply badge bg-red-900/40 text-red-400 border border-red-900/50; }
